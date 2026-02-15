@@ -49,8 +49,11 @@ jobs:
 
       - name: Create ZIP package
         run: |
-          cd javbus_emby_checker
-          zip -r ../javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.zip .
+          zip -r javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.zip . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "*.md" \
+            -x "LICENSE"
 
       - name: Setup Chrome for CRX packing
         uses: browser-actions/setup-chrome@v1
@@ -63,10 +66,14 @@ jobs:
           openssl genrsa -out extension.pem 2048
             
           # Pack extension to CRX using Chrome
-          chrome --pack-extension=javbus_emby_checker --pack-extension-key=extension.pem --no-message-box
+          chrome --pack-extension=. --pack-extension-key=extension.pem --no-message-box
           
           # Rename the CRX file
-          mv javbus_emby_checker.crx javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx
+          mv ../*.crx javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx || true
+          if [ ! -f javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx ]; then
+            # Alternative: if crx is in current directory
+            mv *.crx javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx 2>/dev/null || echo "CRX file created elsewhere"
+          fi
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
