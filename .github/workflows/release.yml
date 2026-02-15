@@ -63,7 +63,7 @@ jobs:
             ### 安装方式
             
             1. 下载 `javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.zip`
-            2. 解压后在浏览器中加载已解压的扩展程序
+            2. 解压后在浏览器中加载已解压的扩展程序或直接将ZIP文件拖入插件管理页面
           files: |
             javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.zip
           draft: false
