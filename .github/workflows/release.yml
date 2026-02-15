@@ -65,14 +65,13 @@ jobs:
           # Generate a temporary key for CRX signing
           openssl genrsa -out extension.pem 2048
             
-          # Pack extension to CRX using Chrome
-          chrome --pack-extension=. --pack-extension-key=extension.pem --no-message-box
+          # Pack extension to CRX using Chrome (with no-sandbox for CI environment)
+          chrome --pack-extension=. --pack-extension-key=extension.pem --no-message-box --no-sandbox
           
           # Rename the CRX file
-          mv ../*.crx javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx || true
+          mv ../*.crx javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx 2>/dev/null || true
           if [ ! -f javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx ]; then
-            # Alternative: if crx is in current directory
-            mv *.crx javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx 2>/dev/null || echo "CRX file created elsewhere"
+            mv *.crx javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx 2>/dev/null || echo "CRX created"
           fi
 
       - name: Create Release
