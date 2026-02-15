@@ -143,7 +143,7 @@
     badge.style.cssText = `
       display: inline-flex;
       align-items: center;
-      margin-left: 2px;
+      margin-left: 1px;
       padding: 2px 6px;
       background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
       color: #fff;
@@ -201,7 +201,7 @@
     badge.style.cssText = `
       display: inline-flex;
       align-items: center;
-      margin-left: 2px;
+      margin-left: 1px;
       padding: 2px 6px;
       background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
       color: #fff;
