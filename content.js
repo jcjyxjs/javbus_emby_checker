@@ -201,7 +201,7 @@
     badge.style.cssText = `
       display: inline-flex;
       align-items: center;
-      margin-left: 6px;
+      margin-left: 2px;
       padding: 2px 6px;
       background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
       color: #fff;
