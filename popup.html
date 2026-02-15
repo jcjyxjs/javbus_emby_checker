@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavBus Emby Checker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --bg: #fff;
+      --fg: #333;
+      --muted: #666;
+      --border: #ddd;
+      --border-light: #eee;
+      --card: #f9f9f9;
+      --card-hover: #e8e8e8;
+      --input-bg: #fff;
+      --success-bg: #f6ffed;
+      --success-border: #b7eb8f;
+      --error-bg: #fff2f0;
+      --error-border: #ffccc7;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a1a;
+        --fg: #e0e0e0;
+        --muted: #999;
+        --border: #444;
+        --border-light: #333;
+        --card: #2a2a2a;
+        --card-hover: #3a3a3a;
+        --input-bg: #2a2a2a;
+        --success-bg: #162312;
+        --success-border: #2d4a1f;
+        --error-bg: #2a1215;
+        --error-border: #4a2228;
+      }
+    }
+    
+    body {
+      width: 300px;
+      font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    
+    .container {
+      padding: 16px;
+    }
+    
+    header {
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: 16px;
+    }
+    
+    header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    
+    .section {
+      margin-bottom: 16px;
+    }
+    
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 8px;
+    }
+    
+    .form-group {
+      margin-bottom: 10px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--fg);
+      background: var(--input-bg);
+    }
+    
+    .form-group input::placeholder {
+      color: var(--muted);
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #52c41a;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    
+    .btn-primary {
+      background: #52c41a;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #389e0d;
+    }
+    
+    .btn-secondary {
+      background: var(--card);
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--card-hover);
+    }
+    
+    .domain-list {
+      max-height: 120px;
+      overflow-y: auto;
+      margin-bottom: 8px;
+    }
+    
+    .domain-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      background: var(--card);
+      border-radius: 4px;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    
+    .domain-item.default {
+      color: var(--muted);
+    }
+    
+    .domain-item .delete-btn {
+      background: none;
+      border: none;
+      color: #ff4d4f;
+      cursor: pointer;
+      padding: 0 4px;
+      font-size: 14px;
+      line-height: 1;
+    }
+    
+    .domain-item .delete-btn:disabled {
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+    
+    .add-domain {
+      display: flex;
+      gap: 4px;
+    }
+    
+    .add-domain input {
+      flex: 1;
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      background: var(--input-bg);
+      color: var(--fg);
+    }
+    
+    .add-domain button {
+      padding: 5px 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--fg);
+    }
+    
+    .status {
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-top: 8px;
+      text-align: center;
+    }
+    
+    .status.success {
+      background: var(--success-bg);
+      color: #52c41a;
+      border: 1px solid var(--success-border);
+    }
+    
+    .status.error {
+      background: var(--error-bg);
+      color: #ff4d4f;
+      border: 1px solid var(--error-border);
+    }
+    
+    .stats {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-light);
+    }
+    
+    .stat-card {
+      flex: 1;
+      background: var(--card);
+      padding: 8px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    
+    .stat-card .value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #52c41a;
+    }
+    
+    .stat-card .label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>JavBus Emby Checker</h1>
+    </header>
+    
+    <div class="section">
+      <div class="section-title">服务器设置</div>
+      <div class="form-group">
+        <label>服务器地址</label>
+        <input type="text" id="serverUrl" placeholder="http://192.168.1.100:8096">
+      </div>
+      <div class="form-group">
+        <label>API Key</label>
+        <input type="text" id="apiKey" placeholder="API密钥">
+      </div>
+      <div class="form-group">
+        <label>用户ID</label>
+        <input type="text" id="userId" placeholder="用户ID">
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">JavBus 域名</div>
+      <div class="domain-list" id="domainList"></div>
+      <div class="add-domain">
+        <input type="text" id="newDomain" placeholder="例如: javbus.co">
+        <button id="addDomainBtn">添加</button>
+      </div>
+    </div>
+    
+    <button class="btn btn-primary" id="saveBtn">保存配置</button>
+    <button class="btn btn-secondary" id="refreshBtn">刷新数据</button>
+    
+    <div class="stats">
+      <div class="stat-card">
+        <div class="value" id="movieCount">-</div>
+        <div class="label">影片数量</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" id="lastUpdate">-</div>
+        <div class="label">最后更新</div>
+      </div>
+    </div>
+    
+    <div class="status hidden" id="status"></div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "emby": {
+    "apiKey": "",
+    "userId": "",
+    "serverUrl": ""
+  },
+  "customDomains": [],
+  "selectors": {
+    "photoInfoDate": ".photo-info date:first-of-type",
+    "xpathSpan": "/html/body/div[5]/div[1]/div[2]/p[1]/span[2]"
+  }
+}
