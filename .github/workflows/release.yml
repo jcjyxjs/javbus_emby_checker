@@ -22,17 +22,14 @@ jobs:
       - name: Get latest tag and increment
         id: get_version
         run: |
-          # Get the latest tag, or start with v0.0.0 if no tags exist
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $LATEST_TAG"
           
-          # Extract version numbers
           VERSION=${LATEST_TAG#v}
           MAJOR=$(echo $VERSION | cut -d. -f1)
           MINOR=$(echo $VERSION | cut -d. -f2)
           PATCH=$(echo $VERSION | cut -d. -f3)
           
-          # Increment patch version
           NEW_PATCH=$((PATCH + 1))
           NEW_TAG="v${MAJOR}.${MINOR}.${NEW_PATCH}"
           
@@ -55,25 +52,6 @@ jobs:
             -x "*.md" \
             -x "LICENSE"
 
-      - name: Setup Chrome for CRX packing
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
-
-      - name: Create CRX package
-        run: |
-          # Generate a temporary key for CRX signing (outside extension directory)
-          cd ..
-          openssl genrsa -out extension.pem 2048
-            
-          # Pack extension to CRX using Chrome
-          chrome --pack-extension=javbus_emby_checker --pack-extension-key=extension.pem --no-message-box --no-sandbox
-          
-          # Rename the CRX file
-          mv javbus_emby_checker.crx javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx
-          mv javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx javbus_emby_checker/
-          rm -f extension.pem
-
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -84,15 +62,9 @@ jobs:
             
             ### 安装方式
             
-            **ZIP 方式（推荐）:**
             1. 下载 `javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.zip`
             2. 解压后在浏览器中加载已解压的扩展程序
-            
-            **CRX 方式:**
-            1. 下载 `javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx`
-            2. 拖拽到浏览器扩展页面安装
           files: |
             javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.zip
-            javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx
           draft: false
           prerelease: false
