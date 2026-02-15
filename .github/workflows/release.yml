@@ -1,0 +1,64 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create ZIP package
+        run: |
+          cd javbus_emby_checker
+          zip -r ../javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.zip .
+
+      - name: Setup Chrome for CRX packing
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Create CRX package
+        run: |
+          # Generate a temporary key for CRX signing (for distribution, users can install via ZIP)
+          openssl genrsa -out extension.pem 2048
+            
+          # Pack extension to CRX using Chrome
+          chrome --pack-extension=javbus_emby_checker --pack-extension-key=extension.pem --no-message-box
+          
+          # Rename the CRX file
+          mv javbus_emby_checker.crx javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: JavBus Emby Checker v${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## JavBus Emby Checker v${{ steps.get_version.outputs.VERSION }}
+            
+            ### 安装方式
+            
+            **ZIP 方式（推荐）:**
+            1. 下载 `javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.zip`
+            2. 解压后在浏览器中加载已解压的扩展程序
+            
+            **CRX 方式:**
+            1. 下载 `javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx`
+            2. 拖拽到浏览器扩展页面安装
+          files: |
+            javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.zip
+            javbus-emby-checker-v${{ steps.get_version.outputs.VERSION }}.crx
+          draft: false
+          prerelease: false
